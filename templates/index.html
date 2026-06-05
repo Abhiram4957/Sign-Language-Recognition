@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Recognition</title>
+    <style>
+        :root {
+            --bg-start: #0d1b2a;
+            --bg-end: #1b263b;
+            --panel: rgba(255, 255, 255, 0.08);
+            --panel-border: rgba(255, 255, 255, 0.14);
+            --text: #f4f7fb;
+            --muted: #b8c4d3;
+            --accent: #ffd166;
+            --accent-strong: #fca311;
+            --danger: #ff6b6b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(252, 163, 17, 0.22), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(92, 103, 125, 0.35), transparent 30%),
+                linear-gradient(135deg, var(--bg-start), var(--bg-end));
+            color: var(--text);
+            display: grid;
+            place-items: center;
+            padding: 24px;
+        }
+
+        .app-shell {
+            width: min(1080px, 100%);
+            display: grid;
+            gap: 24px;
+        }
+
+        .hero {
+            display: grid;
+            gap: 10px;
+        }
+
+        .eyebrow {
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 3.8rem);
+            line-height: 0.98;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            max-width: 700px;
+            font-size: 1rem;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1.45fr 0.95fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 22px;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .camera-card img {
+            width: 100%;
+            border-radius: 18px;
+            display: block;
+            background: rgba(0, 0, 0, 0.28);
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+        }
+
+        .camera-caption {
+            margin-top: 14px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .status-grid {
+            display: grid;
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .status-panel {
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .status-label {
+            color: var(--muted);
+            font-size: 0.84rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 8px;
+        }
+
+        .status-value {
+            font-size: clamp(1.2rem, 4vw, 2.2rem);
+            font-weight: 700;
+            min-height: 1.4em;
+            word-break: break-word;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        button {
+            appearance: none;
+            border: 0;
+            border-radius: 999px;
+            padding: 14px 20px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            color: #101722;
+            box-shadow: 0 12px 24px rgba(252, 163, 17, 0.2);
+        }
+
+        .secondary {
+            background: rgba(255, 255, 255, 0.09);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .danger {
+            background: rgba(255, 107, 107, 0.16);
+            color: #ffd3d3;
+            border: 1px solid rgba(255, 107, 107, 0.32);
+        }
+
+        .hint-list {
+            margin: 18px 0 0;
+            padding-left: 18px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app-shell">
+        <section class="hero">
+            <div class="eyebrow">MobileNetV2 Demo</div>
+            <h1>Real-time Sign Language Recognition</h1>
+            <p class="subtitle">
+                Keep your hand inside the camera frame, wait for a stable prediction, then append it to the word builder.
+            </p>
+        </section>
+
+        <section class="content">
+            <article class="card camera-card">
+                <img src="{{ url_for('video') }}" alt="Live webcam feed">
+                <p class="camera-caption">
+                    If the preview says the camera is unavailable, allow webcam access and restart the app.
+                </p>
+            </article>
+
+            <aside class="card">
+                <div class="status-grid">
+                    <section class="status-panel">
+                        <div class="status-label">Current Prediction</div>
+                        <div class="status-value" id="current-letter">Waiting...</div>
+                    </section>
+
+                    <section class="status-panel">
+                        <div class="status-label">Built Word</div>
+                        <div class="status-value" id="current-word">-</div>
+                    </section>
+                </div>
+
+                <div class="controls">
+                    <button class="primary" id="append-btn" type="button">Append Letter</button>
+                    <button class="secondary" id="refresh-btn" type="button">Refresh Status</button>
+                    <button class="danger" id="reset-btn" type="button">Reset Word</button>
+                </div>
+
+                <ul class="hint-list">
+                    <li>`del` removes the last character.</li>
+                    <li>`space` inserts a blank space into the word.</li>
+                    <li>`nothing` is ignored when you append.</li>
+                </ul>
+            </aside>
+        </section>
+    </main>
+
+    <script>
+        const currentLetter = document.getElementById("current-letter");
+        const currentWord = document.getElementById("current-word");
+
+        async function refreshStatus() {
+            const response = await fetch("/get_word");
+            const data = await response.json();
+            currentLetter.textContent = data.current_letter || "Waiting...";
+            currentWord.textContent = data.word || "-";
+        }
+
+        async function appendLetter() {
+            const response = await fetch("/append_letter");
+            const data = await response.json();
+            currentLetter.textContent = data.current_letter || "Waiting...";
+            currentWord.textContent = data.word || "-";
+        }
+
+        async function resetWord() {
+            const response = await fetch("/reset_word");
+            const data = await response.json();
+            currentWord.textContent = data.word || "-";
+        }
+
+        document.getElementById("append-btn").addEventListener("click", appendLetter);
+        document.getElementById("refresh-btn").addEventListener("click", refreshStatus);
+        document.getElementById("reset-btn").addEventListener("click", resetWord);
+
+        refreshStatus();
+        setInterval(refreshStatus, 1000);
+    </script>
+</body>
+</html>
