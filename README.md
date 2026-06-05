@@ -1,4 +1,4 @@
-# 🤟 Sign Language Recognition Using MobileNetV2
+# Sign Language Recognition Using MobileNetV2
 
 A real-time **American Sign Language (ASL)** recognition system powered by **MobileNetV2** and **MediaPipe Hands**. The application uses a webcam to detect hand gestures, classifies them into ASL letters, and lets users build words letter-by-letter through an interactive web interface.
 
